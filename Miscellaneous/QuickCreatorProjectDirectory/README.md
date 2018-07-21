@@ -9,19 +9,19 @@
 
 ---
 
-Over the course of working on this project, I was quite inexperienced with programming and made a few mistakes that were difficult to remedy. As a result of the inexperience, I had ended up repurposing the official Turtle module file that comes pre-packaged with every Python distribution, and this is what makes up the bulk of the final version of the program, 'turtle2QuikCreator#2.py', which *must* be invoked with **Python 3.5** using [**IDLE and tkinter with Tcl/Tk**](https://www.python.org/download/mac/tcltk/). [Ghostscript](https://www.ghostscript.com) and the [Python Imaging Library (PIL) module](http://www.pythonware.com/products/pil/) are required for many functionalities of the program as well.
+Over the course of working on this project, I was quite inexperienced with programming and made a few mistakes that were difficult to remedy. As a result of the inexperience, I had ended up repurposing the official Turtle module file that comes pre-packaged with every Python distribution, and this is what makes up the bulk of the final version of the program, `turtle2QuikCreator#2.py`, which *must* be invoked with **Python 3.5** using [**IDLE and tkinter with Tcl/Tk**](https://www.python.org/download/mac/tcltk/). [Ghostscript](https://www.ghostscript.com) and the [Python Imaging Library (PIL) module](http://www.pythonware.com/products/pil/) are required for many functionalities of the program as well.
 
 This directory is structured as follows:
 
-     * the "AutoFile" files are files automatically generated and used by the program when embedding and working with images;
-     * the "Cursors" directory contains the sprites of various cursors used at different points throughout the program;
-     * the "Images" directory contains the various icons used for crafting the user interface.
+* the "AutoFile" files are files automatically generated and used by the program when embedding and working with images;
+* the "Cursors" directory contains the sprites of various cursors used at different points throughout the program;
+* the "Images" directory contains the various icons used for crafting the user interface.
 
 Nearly all the mathematics in the program was done by me, based on the knowledge I possessed at the time.
 
 ---
 
-Of course, I cannot make do without giving credit where credit is due. Throughout my work on this projet, I asked many questions on [Stack Overflow](https://stackoverflow.com), and many kind and gracious individuals there came to my aid throughout the process. In fact, most of my questions on Stack Overflow to this day have to do with this project. So please, visit my [Stack Overflow profile](https://stackoverflow.com/users/5661257/r-kap) and give an upvote to answers by those very intelligent and helpful individuals. They absolutely deserve a lot of credit for helping me so well when I was highly inexperienced in programming yet still decided to take on such a daunting task myself. I woudn't have been able to get to this point in this project without the help of the phenomenal Stack Overflow community.
+Of course, I cannot make do without giving credit where credit is due. Throughout my work on this projet, I asked many questions on [Stack Overflow](https://stackoverflow.com), and many kind and gracious individuals there came to my aid throughout the process. In fact, most of my questions on Stack Overflow to this day have to do with this project. So please, visit my [Stack Overflow profile](https://stackoverflow.com/users/5661257/r-kap) and give an upvote to answers by those very intelligent and helpful individuals. They absolutely deserve a lot of credit for helping me so well when I was highly inexperienced in programming yet still decided to take on such a daunting task myself. I woudn't have been able to get to this point in this project without the help of the amazing Stack Overflow community.
 
 
 
