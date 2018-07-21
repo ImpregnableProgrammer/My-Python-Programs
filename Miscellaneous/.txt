@@ -1,0 +1,5 @@
+draw(draw_H)
+draw(draw_E)
+draw(draw_L)
+draw(draw_L)
+draw(draw_O)

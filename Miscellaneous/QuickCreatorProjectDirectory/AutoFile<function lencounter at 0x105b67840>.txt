@@ -1,0 +1,4 @@
+<PIL.JpegImagePlugin.JpegImageFile image mode=RGB size=1280x720 at 0x105B7D320>
+<PIL.Image.Image image mode=RGB size=1280x720 at 0x115C3A908>
+<PIL.Image.Image image mode=RGB size=1280x720 at 0x115C3AA20>
+<PIL.Image.Image image mode=RGB size=721x1281 at 0x115C3AC18>
