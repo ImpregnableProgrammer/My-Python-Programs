@@ -3,7 +3,7 @@
 # Equations given as arrays of coefficents and solution
 # e.g. [2, 3, 4, 6] is 2x + 3y + 4z = 6
 
-# Perform Gauss-Jordan elimination to solve system.
+# Perform Gauss-Jordan elimination to solve linear system.
 # The objective is to reduce the augmented matrix to reduced row-echelon form,
 # which is obtained using the elementary row operations:
 # interchange eqs, multiply eq by non-zero constant, or add multiple of one eq to another.
@@ -13,11 +13,17 @@
 # 3. Diagonalize matrix (make rest of entries not on main diagonal zero)
 # 4. Multipy each row by reciprocal of remaining non-zero value in the row
 class Gaussian_Elimination:
-    
-    def __init__(self, eqs):
+
+    # If `fraction` is true, exact solutions returned as fractions in tuples
+    # e.g. (3, 4) and (-3, -4) are both 3/4
+    def __init__(self, eqs, fraction = None):
         self.coeffs = [eq[:-1] for eq in eqs]
         self.consts = [eq[-1] for eq in eqs]
         self.augm = eqs
+        self.fraction = fraction
+        self.Reduced = None
+        self.Solution = None
+        self.Steps = []
 
     #### BEGIN UNNEEDED ####
     
@@ -42,63 +48,135 @@ class Gaussian_Elimination:
 
     #### END UNNEEDED ####
 
+    #### Helper funcs for rational/fractional arithmetic ####
+    
+    def gcd(self, m, n):
+        if min(m, n) > 0:
+            return self.gcd(min(m, n), max(m, n) % min(m, n))
+        else:
+            return max(m, n)
+
+    def frac_reduce(self, a):
+        GCD = self.gcd(*[abs(num) for num in a])
+        return tuple(num // GCD for num in a)
+
+    def frac_subtrct(self, a, b):
+        Sum = (a[0] * b[1] - b[0] * a[1], a[1] * b[1])
+        return self.frac_reduce((a[0] * b[1] - b[0] * a[1], a[1] * b[1]))
+
+    def frac_mult(self, a, b):
+        return self.frac_reduce((a[0] * b[0], a[1] * b[1]))
+
+    def frac_divide(self, a, b):
+        return self.frac_reduce((a[0] * b[1], a[1] * b[0]))
+
+    #### End helper funcs ####
+        
     def Lower_Triangular(self):
         augm = self.augm[:]
+        if self.fraction:
+            augm = [[(elem, 1) for elem in row] for row in augm]
         for col in range(len(augm[0]) - 2, -1, -1):
             for row in range(col):
-                if augm[row][col] == 0:
+                if augm[row][col] == 0 or (self.fraction and augm[row][col][0] == 0):
                     continue
-                elif augm[row + 1][col] == 0:
+                elif augm[row + 1][col] == 0 or (self.fraction and augm[row + 1][col][0] == 0):
                     curr_row = augm[row]
                     augm[row] = augm[row + 1]
                     augm[row + 1] = curr_row
+                    self.Steps.append("R%d <-> R%d" % (row + 1, row + 2)) 
                     continue
-                multiplier = augm[row][col] / augm[row + 1][col]
-                augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[row + 1]])]
+                if self.fraction:
+                    multiplier = self.frac_divide(augm[row][col], augm[row + 1][col])
+                    augm[row] = [self.frac_subtrct(*pair) for pair in zip(augm[row], [self.frac_mult(elem, multiplier) for elem in augm[row + 1]])]
+                    self.Steps.append("R%d + (%d/%d)R%d -> R%d" % (row + 1, *multiplier, row + 2, row + 1))
+                else:
+                    multiplier = augm[row][col] / augm[row + 1][col]
+                    augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[row + 1]])]
         return augm
 
     def Diagonalize(self):
         augm = self.Lower_Triangular()
         for col in range(len(augm[0]) - 1):
             for row in range(len(augm) - 1, col, -1):
-                if augm[row][col] == 0:
+                if augm[row][col] == 0 or (self.fraction and augm[row][col][0] == 0):
                     continue
-                elif augm[col][col] == 0:
+                elif augm[col][col] == 0 or (self.fraction and augm[col][col][0] == 0):
                     new_row = col + 1
-                    while augm[new_row][col] == 0 and new_row < row:
+                    while (augm[new_row][col] == 0 or (self.fraction and augm[new_row][col][0] == 0)) and new_row < row:
                         new_row += 1
-                    multiplier = augm[row][col] / augm[new_row][col]
-                    augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[new_row]])]
+                    if self.fraction:
+                        multiplier = self.frac_divide(augm[row][col], augm[new_row][col])
+                        augm[row] = [self.frac_subtrct(*pair) for pair in zip(augm[row], [self.frac_mult(elem, multiplier) for elem in augm[new_row]])]
+                        self.Steps.append("R%d + (%d/%d)R%d -> R%d" % (row + 1, *multiplier, new_row + 1, row + 1))
+                    else:
+                        multiplier = augm[row][col] / augm[new_row][col]
+                        augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[new_row]])]
                     continue
-                multiplier = augm[row][col] / augm[col][col]
-                augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[col]])]
+                if self.fraction:
+                    multiplier = self.frac_divide(augm[row][col], augm[col][col])
+                    augm[row] = [self.frac_subtrct(*pair) for pair in zip(augm[row], [self.frac_mult(elem, multiplier) for elem in augm[col]])]
+                    self.Steps.append("R%d + (%d/%d)R%d -> R%d" % (row + 1, *multiplier, col + 1, row + 1))
+                else:
+                    multiplier = augm[row][col] / augm[col][col]
+                    augm[row] = [sum(pair) for pair in zip(augm[row], [-elem * multiplier for elem in augm[col]])]
         return augm
 
     def Solve(self):
         augm = self.Diagonalize()
         for row in range(len(augm)):
-            if augm[row][row] == 0:
-                if augm[row][-1] != 0:
-                    return "No Solution!"
-                return "Infinite Solutions!"
-            augm[row] = [elem / augm[row][row] for elem in augm[row]]
+            if augm[row][row] == 0 or (self.fraction and augm[row][row][0] == 0):
+                if augm[row][-1] == 0 or (self.fraction and augm[row][-1][0] == 0):
+                    return "Infinite Solutions!"
+                return "No Solution!"
+            if self.fraction:
+                augm[row] = [self.frac_divide(elem, augm[row][row]) for elem in augm[row]]
+                self.Steps.append("(%d/%d)R%d" % (*augm[row][row][::-1], row + 1))
+            else:
+                augm[row] = [elem / augm[row][row] for elem in augm[row]]
         self.Reduced = augm
         self.Solution = [row[-1] for row in augm]
         return self.Solution, self.Verify()
 
+    # Only call after solving system to verify solution
     def Verify(self):
-        return [round(sum([a*x for a,x in zip(row, self.Solution)])) for row in self.coeffs] == self.consts
+        if not self.Solution:
+            return "Solve the system first!"
+        return [round(sum([a*x[0]/x[1] if self.fraction else a*x for a,x in zip(row, self.Solution)])) for row in self.coeffs] == self.consts
 
-Eqs = [[5, 3, 6, 9, 0],
-       [2, 1, 5, 7, 0],
-       [0, 3, 1, 0, 9],
-       [0, 9, 0, 1, 0]]
+    # Only call after solving system to get steps taken
+    # Steps only given for fraction mode, since they're messy in decimal mode
+    def getSteps(self):
+        if not self.fraction:
+            print("Steps only given for fraction mode!")
+        elif not self.Solution:
+            print("Solve the system first!")
+        else:
+            for i in range(len(self.Steps)):
+                print("%d. %s" % (i+1, self.Steps[i]))
 
-'''Eqs = [[4, 3, 5, 7],
-       [3, 0, 6, 8],
-       [2, 6, 9, 2]]'''
+                
+if __name__ == "__main__":
 
-Process = Gaussian_Elimination(Eqs)
-print("Lower Triangular:", Process.Lower_Triangular())
-print("Diagonalized:", Process.Diagonalize())
-print("Solution:", Process.Solve())
+    # Try it out!
+    
+    '''Eqs = [[5, 3, 6, 9, 0],
+           [2, 1, 5, 7, 0],
+           [0, 3, 1, 0, 9],
+           [0, 9, 0, 1, 0]]'''
+
+    Eqs = [[1, 0, -3, -2],
+           [3, 1, -2, 5],
+           [2, 2, 1, 4]]
+
+    '''Eqs = [[5,8,4,1],
+           [2,6,3,3],
+           [7,9,2,9]]'''
+
+    Process = Gaussian_Elimination(Eqs, True)
+    print("Augmented Matrix:", Process.augm)
+    print("Lower Triangular:", Process.Lower_Triangular())
+    print("Diagonalized:", Process.Diagonalize())
+    print("Solution (pay attention to the signs!):", Process.Solve())
+    print("Steps (pay attention to the signs!):")
+    Process.getSteps()
